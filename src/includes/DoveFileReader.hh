@@ -56,7 +56,7 @@ namespace dove {
         FileReader() = default;
         virtual ~FileReader() = default;
 
-        virtual const uint64_t tryReads(uint32_t, uint32_t) = 0;
+        virtual const uint64_t tryReads(uint32_t, uint32_t, uint32_t) = 0;
     };
 
     
@@ -84,7 +84,7 @@ namespace dove {
             virtual uint64_t testOpenFile();
             virtual bool openFile();
 
-            virtual const uint64_t tryReads(uint32_t, uint32_t);
+            virtual const uint64_t tryReads(uint32_t, uint32_t, uint32_t);
         };
     };
 }

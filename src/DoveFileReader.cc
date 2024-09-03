@@ -3,9 +3,20 @@
  * https://github.com/sjoon-oh/
  */
 
+#include <unistd.h>
+#include <sys/syscall.h>
+
 #include <cstring>
 #include <memory>
+
+#if defined(__GNUC__) && defined(__cplusplus)
+#if (__GNUC__ >= 10)
 #include <format>
+#else
+#include <cstdio>
+#include <string>
+#endif
+#endif
 
 #include <random>
 
@@ -54,8 +65,18 @@ void dove::async::FileRandomReader::contextSetup() {
 
 void dove::async::FileRandomReader::stopWatchSetup() {
 
+#if defined(__GNUC__) && defined(__cplusplus)
+#if (__GNUC__ >= 10)
     std::string sw_name(std::format("{}", typeid(*this).name()));
     std::string sw_path(std::format("data/stopwatches/{}", sw_name));
+#else
+    std::string sw_name =  typeid(*this).name();
+    std::string sw_path(
+        std::string("data/stopwatches/") + sw_name 
+    );
+#endif
+#endif
+
     stop_watch.reset(
         new dove::StopWatchMicroseconds(sw_path.c_str())
     );
@@ -147,7 +168,7 @@ bool dove::async::FileRandomReader::openFile() {
 }
 
 
-const uint64_t dove::async::FileRandomReader::tryReads(uint32_t p_num, uint32_t p_batch) {
+const uint64_t dove::async::FileRandomReader::tryReads(uint32_t p_num, uint32_t p_batch, uint32_t p_chunks) {
 
     const uint32_t page_num = (file_meta.file_sz / 4096);
 
@@ -169,7 +190,7 @@ const uint64_t dove::async::FileRandomReader::tryReads(uint32_t p_num, uint32_t 
         std::memset(iocbs[i], 0, p_batch * sizeof(struct iocb));
     }
 
-    const int chunk_sz = 5;
+    const uint32_t chunk_sz = p_chunks;
 
     std::random_device rand_dev;
     std::mt19937 generator(rand_dev());

@@ -3,7 +3,14 @@
  * https://github.com/sjoon-oh/
  */
 
+#if defined(__GNUC__) && defined(__cplusplus)
+#if (__GNUC__ >= 10)
 #include <format>
+#else
+#include <cstdio>
+#include <string>
+#endif
+#endif
 #include <fstream>
 
 #include "./includes/DoveStopWatch.hh"
@@ -42,8 +49,16 @@ dove::StopWatch::StopWatch() : start_record(true) {
 dove::StopWatch::StopWatch(const char* p_file_path) : start_record(true) {
     
     int count = sw_counter.fetch_add(1);
-
+#if defined(__GNUC__) && defined(__cplusplus)
+#if (__GNUC__ >= 10)
     file_path.reset(new std::string(std::format("{}-{}.sw-intervals", p_file_path, count)));
+#else
+    char buffer[128] = { 0, };
+    sprintf(buffer, "%s-%d.sw-intervals", p_file_path, count);
+    file_path.reset(new std::string(buffer));
+#endif
+#endif
+
     ts_records.reset(new std::vector<struct dove::StopWatch::Interval>());
 }
 
@@ -101,14 +116,37 @@ dove::StopWatchMilliseconds::~StopWatchMilliseconds() {
     std::unique_ptr<dove::Logger> logger(new dove::Logger(file_path.get()->c_str()));
 
     if (!out_file.is_open()) {
+
+#if defined(__GNUC__) && defined(__cplusplus)
+#if (__GNUC__ >= 10)
         logger.get()->getLogger()->warn(
             std::format("{} not opened.", file_path.get()->c_str()));
+#else
+        logger.get()->getLogger()->warn(
+            (*(file_path.get()) + std::string("not opened.")).c_str());
+#endif
+#endif
         return;
     }
 
+#if defined(__GNUC__) && defined(__cplusplus)
+#if (__GNUC__ < 10)
+    char buffer[128] = { 0, };
+#endif
+#endif
+
     for (auto& ts: *(ts_records.get())) {
         interval = calculateInterval(ts.start, ts.end);
+
+#if defined(__GNUC__) && defined(__cplusplus)
+#if (__GNUC__ >= 10)   
         out_file << std::format("{:.3f}", interval) << std::endl;
+#else
+        std::memset(buffer, 0, sizeof(char) * 128);
+        sprintf(buffer, "%.3lf", interval);
+        out_file << buffer << std::endl;
+#endif
+#endif
     }
 }
 
@@ -142,13 +180,36 @@ dove::StopWatchMicroseconds::~StopWatchMicroseconds() {
     std::unique_ptr<dove::Logger> logger(new dove::Logger(file_path.get()->c_str()));
 
     if (!out_file.is_open()) {
+
+#if defined(__GNUC__) && defined(__cplusplus)
+#if (__GNUC__ >= 10)
         logger.get()->getLogger()->warn(
             std::format("{} not opened.", file_path.get()->c_str()));
+#else
+        logger.get()->getLogger()->warn(
+            (*(file_path.get()) + std::string("not opened.")).c_str());
+#endif
+#endif
         return;
     }
 
+#if defined(__GNUC__) && defined(__cplusplus)
+#if (__GNUC__ < 10)
+    char buffer[128];
+#endif
+#endif
+
     for (auto& ts: *(ts_records.get())) {
         interval = calculateInterval(ts.start, ts.end);
+
+#if defined(__GNUC__) && defined(__cplusplus)
+#if (__GNUC__ >= 10)   
         out_file << std::format("{:.3f}", interval) << std::endl;
+#else
+        std::memset(buffer, 0, sizeof(char) * 128);
+        sprintf(buffer, "%.3lf", interval);
+        out_file << buffer << std::endl;
+#endif
+#endif
     }
 }

@@ -80,7 +80,7 @@ int main() {
         logger->getLogger()->info("Existing file size detect: {}", test_size);
         file_reader->openFile();
 
-        int after_read = file_reader->tryReads(10000, 32);
+        int after_read = file_reader->tryReads(10000, 32, 5);
  
         logger->getLogger()->info("Number of reads: {}", after_read);
     }

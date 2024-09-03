@@ -7,8 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_VERBOSE_MAKEFILE true)
 
 # Set in your own path
-set(CMAKE_C_COMPILER "/opt/rh/devtoolset-9/root/usr/bin/gcc")
-set(CMAKE_CXX_COMPILER "/opt/rh/devtoolset-9/root/usr/bin/g++")
+set(CMAKE_C_COMPILER "/usr/bin/gcc-9")
+set(CMAKE_CXX_COMPILER "/usr/bin/g++-9")
 
 add_compile_options(
     "-Wall" "$<$<CONFIG:DEBUG>:-O0;-g3;-ggdb>"
@@ -53,27 +53,3 @@ set_target_properties(
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/bin
 )
 target_link_libraries(${dove_testbin} PUBLIC ${dovelib} pthread)
-
-# Generator
-set(dove_generator dove-generator)
-add_executable(
-    ${dove_generator}
-    ${PROJECT_SOURCE_DIR}/src/tests/dove-generate.cc
-)
-set_target_properties(
-    ${dove_generator} 
-    PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/bin
-)
-target_link_libraries(${dove_generator} PUBLIC ${dovelib} pthread)
-
-# Reader
-set(dove_reader dove-reader)
-add_executable(
-    ${dove_reader}
-    ${PROJECT_SOURCE_DIR}/src/tests/dove-reader.cc
-)
-set_target_properties(
-    ${dove_reader} 
-    PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/bin
-)
-target_link_libraries(${dove_reader} PUBLIC ${dovelib} pthread)
